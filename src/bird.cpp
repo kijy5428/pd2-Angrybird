@@ -10,6 +10,7 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <cmath>
+#include <sstream>
 
 using namespace std;
 
@@ -17,10 +18,11 @@ using namespace std;
 float  pfactor2 = 15.0f;
 float Bird::anchorx = 0;
 float Bird::anchory = 0;
+int Bird::birdPk =0;
 
 
 Bird::Bird(float x, float y, float radius, QTimer *timer, QPixmap pixmap, b2World *world, QGraphicsScene *scene,GameItem* Reference):GameItem(world),pressed(false),shooted(false),
-    attacked(false),reference(Reference),bworld(world),bscene(scene),btimer(timer)
+    attacked(false),reference(Reference),bworld(world),bscene(scene),btimer(timer),collided(0)
 {
 
     // Set pixmap , given the image of the bird
@@ -39,55 +41,6 @@ Bird::Bird(float x, float y, float radius, QTimer *timer, QPixmap pixmap, b2Worl
     currPoint.setY(y);
 
     //  /////////////////////////////////////////////////////////////////Create Body!!!!!/////////////////////////////////////////////////////////////////////////
-    //b2BodyDef gives the definition of body
-    /*
-    b2BodyDef bodydef;
-    bodydef.type = b2_dynamicBody;
-
-    // whether it could shoot through others objects
-    bodydef.bullet = 1;
-
-    // setting the attribute of birds
-    Type* type  = new Type;
-    type->category = 1;
-    type->name ="bird";
-    bodydef.userData = type;
-
-
-    // initial position
-    bodydef.position.Set(x,y);
-
-    // creating the body in the world using the bodydef (body definiton)
-    // and pass to b2body pointer g_body
-    g_body = world->CreateBody(&bodydef);
-
-    // //////////////////////////////////set the properties of fixture////////////////////////////////////
-
-    // set the shape of fixture as circle
-    b2CircleShape bodyshape;
-    bodyshape.m_radius = radius;
-    b2FixtureDef fixturedef;
-    fixturedef.shape = &bodyshape;
-    fixturedef.density = BIRD_DENSITY;
-    fixturedef.friction = BIRD_FRICTION;
-    fixturedef.restitution = BIRD_RESTITUTION;
-
-
-    b2MouseJointDef jointDef;
-    jointDef.bodyA = Reference->g_body;
-    jointDef.bodyB =g_body;
-
-    b2Vec2 pos = g_body->GetPosition();
-    jointDef.target.Set(pos.x,pos.y);
-    jointDef.collideConnected = true;
-    jointDef.maxForce = 1000;
-    joint = (b2MouseJoint*)world->CreateJoint( &jointDef );
-
-    g_body->SetAngularDamping(3);
-    g_body->SetLinearDamping(0.1);
-    */
-    // add the fixture with properties set before
-   // g_body->CreateFixture(&fixturedef);
 
 
     // Bound timer for painting objects
@@ -127,8 +80,25 @@ void Bird::paint(){
     if(pressed){
         QPointF poss= QCursor::pos();
         float ax ,ay;
-        ax = (poss.x()-64) * g_worldsize.width()/g_windowsize.width();
-        ay =( poss.y()-64)*g_worldsize.height()/g_windowsize.height();
+
+        //  constrict the range of the birds on the slingshot!!
+        float curposx,curposy;
+        curposx = poss.x()-64;
+        curposy = poss.y()-64;
+
+        if(curposx < 70 )
+            curposx  =70;
+        else if( curposx >400)
+            curposx = 400;
+
+        if(curposy <300)
+            curposy = 300;
+        else if(curposy > 500)
+            curposy = 500;
+
+        ax = (curposx) * g_worldsize.width()/g_windowsize.width();
+        ay =( curposy)*g_worldsize.height()/g_windowsize.height();
+
         b2Vec2 *currentmousepos = new b2Vec2(ax,g_worldsize.height()-ay);
         joint->SetTarget(*currentmousepos);
     }
@@ -171,6 +141,11 @@ void Bird::setPressed(bool flag){
 
 }
 
+bool Bird:: getPressed(){
+    return pressed;
+
+}
+
 void Bird::destroyJoint(b2World * world){
 
     if(joint != 0) {
@@ -186,7 +161,7 @@ void Bird::fly(){
     b2Vec2 pos = g_body->GetPosition();
     float vFactorx,vFactory;
     vFactorx = 4;
-    vFactory =1*vFactorx;
+    vFactory =1.2*vFactorx;
     b2Vec2 flyVelocity = b2Vec2((anchorx-pos.x)*vFactorx,(anchory-pos.y)*vFactory);
     setLinearVelocity(flyVelocity);
 
@@ -211,6 +186,14 @@ void Bird::setAnchorPosition(float x, float y){
 
 }
 
+bool Bird::getCollided(){
+    return collided;
+}
+void Bird::setCollided(){
+    collided =1;
+}
+
+
 void Bird::attack(){}
 
 bool Bird :: getAttacked(){
@@ -229,7 +212,10 @@ RedBird ::RedBird(float x, float y, float radius, QTimer *timer, QPixmap pixmap,
     // setting the attribute of birds
     Type* type  = new Type;
     type->category = 1;
-    type->name ="bird";
+    ostringstream stream;
+    stream << "B" << birdPk++;
+    string result = stream.str();
+    type->name =result;
     bodydef.userData = type;
 
     // initial position
@@ -258,7 +244,7 @@ RedBird ::RedBird(float x, float y, float radius, QTimer *timer, QPixmap pixmap,
     b2Vec2 pos = g_body->GetPosition();
     jointDef.target.Set(pos.x,pos.y);
     jointDef.collideConnected = true;
-    jointDef.maxForce = 1000;
+    jointDef.maxForce = 5000;
     joint = (b2MouseJoint*)world->CreateJoint( &jointDef );
 
     g_body->SetAngularDamping(3);
@@ -288,7 +274,10 @@ BlueBird ::BlueBird(float x, float y, float radius, QTimer *timer, QPixmap pixma
     // setting the attribute of birds
     Type* type  = new Type;
     type->category = 1;
-    type->name ="bird";
+    ostringstream stream;
+    stream << "B" << birdPk++;
+    string result = stream.str();
+    type->name =result;
     bodydef.userData = type;
 
     // initial position
@@ -317,7 +306,7 @@ BlueBird ::BlueBird(float x, float y, float radius, QTimer *timer, QPixmap pixma
     b2Vec2 pos = g_body->GetPosition();
     jointDef.target.Set(pos.x,pos.y);
     jointDef.collideConnected = true;
-    jointDef.maxForce = 1000;
+    jointDef.maxForce = 5000;
     joint = (b2MouseJoint*)world->CreateJoint( &jointDef );
 
     g_body->SetAngularDamping(3);
@@ -333,11 +322,11 @@ void BlueBird ::attack(){
     b2Vec2 pos =    g_body->GetPosition();
     b2Vec2 velocity = g_body->GetLinearVelocity();
 
-    Bird*birdy1 = new LittleBlueBird(pos.x+5,pos.y+5,1.0f,btimer,QPixmap(":/blueBird.png").scaled(2*pfactor2,2*pfactor2),bworld,bscene,reference);
-    Bird*birdy2 = new LittleBlueBird(pos.x+5,pos.y-5,1.0f,btimer,QPixmap(":/blueBird.png").scaled(2*pfactor2,2*pfactor2),bworld,bscene,reference);
+    Bird*birdy1 = new LittleBlueBird(pos.x+1,pos.y+1,1.0f,btimer,QPixmap(":/blueBird.png").scaled(2*pfactor2,2*pfactor2),bworld,bscene,reference);
+    Bird*birdy2 = new LittleBlueBird(pos.x+1,pos.y-1,1.0f,btimer,QPixmap(":/blueBird.png").scaled(2*pfactor2,2*pfactor2),bworld,bscene,reference);
 
-    birdy1->setLinearVelocity(b2Vec2(velocity.x+3,velocity.y+1));
-    birdy2->setLinearVelocity(b2Vec2(velocity.x+3,velocity.y-1));
+    birdy1->setLinearVelocity(b2Vec2(velocity.x+1,velocity.y+1));
+    birdy2->setLinearVelocity(b2Vec2(velocity.x+1,velocity.y-1));
     activeBirdList.push_back(birdy1);
     activeBirdList.push_back(birdy2);
     attacked = true;
@@ -404,7 +393,10 @@ YellowBird ::YellowBird(float x, float y, float radius, QTimer *timer, QPixmap p
     // setting the attribute of birds
     Type* type  = new Type;
     type->category = 1;
-    type->name ="bird";
+    ostringstream stream;
+    stream << "B" << birdPk++;
+    string result = stream.str();
+    type->name =result;
     bodydef.userData = type;
 
     // initial position
@@ -433,7 +425,7 @@ YellowBird ::YellowBird(float x, float y, float radius, QTimer *timer, QPixmap p
     b2Vec2 pos = g_body->GetPosition();
     jointDef.target.Set(pos.x,pos.y);
     jointDef.collideConnected = true;
-    jointDef.maxForce = 1000;
+    jointDef.maxForce = 5000;
     joint = (b2MouseJoint*)world->CreateJoint( &jointDef );
 
     g_body->SetAngularDamping(3);
@@ -446,7 +438,7 @@ YellowBird ::YellowBird(float x, float y, float radius, QTimer *timer, QPixmap p
 void YellowBird ::attack(){
 
     if(!attacked){
-        g_body->ApplyLinearImpulse(b2Vec2(100,0),g_body->GetWorldCenter(),true);
+        g_body->ApplyLinearImpulse(b2Vec2(300,0),g_body->GetWorldCenter(),true);
         attacked = true;
     }
 }
@@ -461,8 +453,10 @@ BigBird ::BigBird(float x, float y, float radius, QTimer *timer, QPixmap pixmap,
 
     // setting the attribute of birds
     Type* type  = new Type;
-    type->category = 1;
-    type->name ="bird";
+    ostringstream stream;
+    stream << "B" << birdPk++;
+    string result = stream.str();
+    type->name =result;
     bodydef.userData = type;
 
     // initial position
@@ -491,7 +485,7 @@ BigBird ::BigBird(float x, float y, float radius, QTimer *timer, QPixmap pixmap,
     b2Vec2 pos = g_body->GetPosition();
     jointDef.target.Set(pos.x,pos.y);
     jointDef.collideConnected = true;
-    jointDef.maxForce = 9000;
+    jointDef.maxForce = 1000000;
     joint = (b2MouseJoint*)world->CreateJoint( &jointDef );
 
     g_body->SetAngularDamping(3);

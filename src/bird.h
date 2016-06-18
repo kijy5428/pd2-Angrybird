@@ -21,6 +21,7 @@ public:
     void setLinearVelocity(b2Vec2 velocity);
     void paint();
     void setPressed(bool flag);
+    bool getPressed();
     void destroyJoint(b2World * world);
     void fly();
     QPointF getPressPoint1();
@@ -31,6 +32,8 @@ public:
     virtual void attack();
     bool getAttacked();
     static void setAnchorPosition(float x, float y);
+    bool getCollided();
+    void setCollided();
 
 protected :
     bool pressed;
@@ -42,6 +45,8 @@ protected :
     QPointF prevPoint;
     QPointF currPoint;
     bool shooted;
+    bool collided;
+    static int  birdPk;
 
 
 

@@ -1,12 +1,13 @@
 #include "pigcontactlistener.h"
 #include <iostream>
 #include "typeStruct.h"
+#include <sstream>
 
 using namespace std;
 
 //PigContactListener::PigContactListener():deleteList(QList<GameItem*>){}
 
-PigContactListener::PigContactListener(QList<Pig*> list,QList<GameItem*>  &DeleteList,int &Score,b2World * World):piglist(list),deleteList(DeleteList),world(World),score(Score){}
+PigContactListener::PigContactListener(QList<Pig*> list,QList<Bird*>& list2,QList<GameItem*>  &DeleteList,int &Score,b2World * World):piglist(list),birdlist(list2),deleteList(DeleteList),world(World),score(Score){}
 
 void PigContactListener::BeginContact(b2Contact* contact){
     Type* type1,*type2;
@@ -20,7 +21,7 @@ void PigContactListener::BeginContact(b2Contact* contact){
     name1= type1->name;
     name2  = type2->name;
 
-
+// pig contact detection
     if(category1==100 || category2 ==100){        // collision between pigs
         if(category1== 100){     // fixture A is pig
             if(category2 != 100){         // fixture B is not  pig
@@ -28,6 +29,11 @@ void PigContactListener::BeginContact(b2Contact* contact){
                     Pig* currPig  = findPig(piglist,name1);
                     deleteList.push_back(currPig);
                     score+=5000;
+                    if(category2==1){
+                     Bird * bird1 = findBird(birdlist,name2);
+                     if(bird1!=0)
+                         bird1->setCollided();
+                    }
                 }
             }
             else{              //fixture B is also pig
@@ -44,6 +50,41 @@ void PigContactListener::BeginContact(b2Contact* contact){
                 Pig* currPig = findPig(piglist,name2);
                 deleteList.push_back(currPig);
                 score+=5000;
+                if(category1==1){
+                    Bird * bird1 = findBird(birdlist,name1);
+                    if(bird1!=0)
+                        bird1->setCollided();
+                }
+            }
+        }
+    }
+
+
+    // bird contact detection
+    if(category1==1 || category2 ==1){
+        if(category1==1){
+            if(category2==1){
+                Bird* bird1 = findBird(birdlist,name1);
+                Bird* bird2 = findBird(birdlist,name2);
+                cout << name1 << name2 << endl;
+                if(bird1!=0)
+                    bird1->setCollided();
+                if(bird2!=0)
+                    bird2->setCollided();
+            }
+            else{
+                if(category2!=100){
+                    Bird * bird1 = findBird(birdlist,name1);
+                    if(bird1!=0)
+                        bird1->setCollided();
+                }
+            }
+        }
+        else{
+            if(category1!=100){
+                Bird* bird1 = findBird(birdlist,name2);
+                if(bird1!=0)
+                    bird1->setCollided();
             }
         }
     }
@@ -61,5 +102,18 @@ Pig* PigContactListener::findPig(QList<Pig*> &list,string currName){
             return list.takeAt(i);
         }
     }
+}
+
+Bird* PigContactListener::findBird(QList<Bird*> list,string currName){
+     string targetName;
+     Type* targetType;
+    for(int i=0 ; i<list.size();i++){
+        targetType= (Type*)list.at(i)->g_body->GetUserData() ;
+        targetName = targetType ->name;
+        if(currName.compare(targetName)==0){
+            return list.at(i);
+        }
+    }
+    return 0;
 }
 

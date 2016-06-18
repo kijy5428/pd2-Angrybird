@@ -105,9 +105,9 @@ void MainWindow::showEvent(QShowEvent *)
     Bird::setAnchorPosition(anchorx,anchory);
 
     Bird*birdie2 = new RedBird(anchorx,anchory,1.0f,&timer,QPixmap(":/redBird.png").scaled(2.0f*pfactor,2.0f*pfactor),world,scene,land);
-    Bird*birdie3 = new BlueBird(7,3,1.0f,&timer,QPixmap(":/blueBird.png").scaled(2.0f*pfactor,2.0f*pfactor),world,scene,land,activeBirdList);
-    Bird*birdie4 = new YellowBird(4,3,1.0f,&timer,QPixmap(":/yellowBird.png").scaled(2.0f*pfactor,2.0f*pfactor),world,scene,land);
-    Bird*birdie5 = new BigBird(2,3,2.0f,&timer,QPixmap(":/bigBird.png").scaled(4.0f*pfactor,4.0f*pfactor),world,scene,land);
+    Bird*birdie3 = new BlueBird(7.5,3,1.0f,&timer,QPixmap(":/blueBird.png").scaled(2.0f*pfactor,2.0f*pfactor),world,scene,land,activeBirdList);
+    Bird*birdie4 = new YellowBird(4.5,3,1.0f,&timer,QPixmap(":/yellowBird.png").scaled(2.0f*pfactor,2.0f*pfactor),world,scene,land);
+    Bird*birdie5 = new BigBird(1.5,3,2.0f,&timer,QPixmap(":/bigBird.png").scaled(4.0f*pfactor,4.0f*pfactor),world,scene,land);
     Pig*pig1 =new Pig(60,6,1.0f,&timer,QPixmap(":/pig.png").scaled(2.0f*pfactor,2.0f*pfactor),world,scene,"PigA");
     Pig*pig2 =new Pig(55,6,1.0f,&timer,QPixmap(":/pig.png").scaled(2.0f*pfactor,2.0f*pfactor),world,scene,"PigB");
     Pig*pig3 =new Pig(65,6,1.0f,&timer,QPixmap(":/pig.png").scaled(2.0f*pfactor,2.0f*pfactor),world,scene,"PigC");
@@ -137,7 +137,7 @@ void MainWindow::showEvent(QShowEvent *)
 
 
     //set contactlistener
-    PigContactListener *listenerInstance = new PigContactListener(piglist,deleteList,score,world) ;
+    PigContactListener *listenerInstance = new PigContactListener(piglist,activeBirdList,deleteList,score,world) ;
     world->SetContactListener(listenerInstance);
 
     //create functional button
@@ -213,12 +213,15 @@ bool MainWindow::eventFilter(QObject *, QEvent *event)
     {
         if(activeBird!=0){   //prevent from accessing dangling pointer
             if(!activeBird->getShooted()){   // when the bird hasn't been shot yet
-                if((cursorPos.x() < activeBird->getPressPoint2().x() && cursorPos.x() > activeBird->getPressPoint1().x()) && ( cursorPos.y() <activeBird->getPressPoint2().y() && cursorPos.y() > activeBird->getPressPoint1().y()  )){
-                    activeBird->setPressed(false);
-                    activeBird->setShooted(true);
-                    activeBird->fly();
-                    activeBird->destroyJoint(world);  // we must destroythe joint to let the bird fly
-                }
+               // if((cursorPos.x() < activeBird->getPressPoint2().x() && cursorPos.x() > activeBird->getPressPoint1().x()) && ( cursorPos.y() <activeBird->getPressPoint2().y() && cursorPos.y() > activeBird->getPressPoint1().y()  )){
+                    if(activeBird->getPressed()){
+                        activeBird->setPressed(false);
+                        activeBird->fly();
+                        activeBird->destroyJoint(world);  // we must destroythe joint to let the bird fly
+                        activeBird->setShooted(true);   // be placed at the end could prevernt the bird from prematurely deleting
+
+                    }
+               // }
             }
         }
         return true;
@@ -239,6 +242,7 @@ void MainWindow::tick()
     cursorPos.setX(QCursor::pos().x()-64);
     cursorPos.setY(QCursor::pos().y()-64);
 
+
     // set the score of games!!!
      scoreText->setPlainText(QString::number(score));
 
@@ -248,7 +252,7 @@ void MainWindow::tick()
      if(activeBird!=0){
         b2Vec2 activeBirdPos = activeBird->g_body->GetPosition();
         // important game process : deleting the bird!!
-        if(activeBird->stop() || activeBirdPos.x>84 ||activeBirdPos.x<0 ){  // we have to check 1. wether the bird is stop moveing  2 . whether the bird has gone too far
+        if(  (activeBird->stop() && activeBird->getCollided())|| activeBirdPos.x>84 ||activeBirdPos.x<0 ){  // we have to check 1. wether the bird is stop moveing  2 . whether the bird has gone too far
             while(!activeBirdList.isEmpty()){
                 deleteList.push_back(activeBirdList.takeFirst());   // if we meet the condition  above , we nedd to delte the current  bird
             }
