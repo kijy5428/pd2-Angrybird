@@ -27,7 +27,7 @@ public slots:
 protected:
 
     QGraphicsPixmapItem g_pixmap;
-     QSizeF g_size;
+    QSizeF g_size;
     QSizeF size;
     b2World *g_world;
     static QSizeF g_worldsize, g_windowsize;
