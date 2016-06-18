@@ -25,7 +25,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QList<Bird*>activeBirdList;
+    QList<Bird*> activeBirdList;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void showEvent(QShowEvent *);
