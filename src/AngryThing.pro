@@ -16,7 +16,12 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     gameitem.cpp \
     bird.cpp \
-    land.cpp
+    items.cpp \
+    pig.cpp \
+    pigcontactlistener.cpp \
+    font.cpp \
+    dynamicitem.cpp \
+    staticitem.cpp
 
 HEADERS  += mainwindow.h \
     Box2D/Collision/Shapes/b2ChainShape.h \
@@ -68,7 +73,13 @@ HEADERS  += mainwindow.h \
     Box2D/Box2D.h \
     gameitem.h \
     bird.h \
-    land.h
+    items.h \
+    pig.h \
+    pigcontactlistener.h \
+    typeStruct.h \
+    font.h \
+    dynamicitem.h \
+    staticitem.h
 
 FORMS    += mainwindow.ui
 

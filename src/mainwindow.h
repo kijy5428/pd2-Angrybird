@@ -11,8 +11,9 @@
 #include <iostream>
 
 #include <gameitem.h>
-#include <land.h>
+#include <items.h>
 #include <bird.h>
+#include <pig.h>
 
 namespace Ui {
 class MainWindow;
@@ -20,28 +21,41 @@ class MainWindow;
 
 class MainWindow : public QMainWindow
 {
+    friend  class PigContactListener;
     Q_OBJECT
 
 public:
+    QList<Bird*>activeBirdList;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void showEvent(QShowEvent *);
-    bool eventFilter(QObject *,QEvent *event);
+    bool eventFilter(QObject *, QEvent *event);
     void closeEvent(QCloseEvent *);
+    void loadBird();
+
 signals:
-    // Signal for closing the game
     void quitGame();
 
 private slots:
     void tick();
-    // For debug slot
     void QUITSLOT();
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
     b2World *world;
     QList<GameItem *> itemList;
+    QList<Bird *> birdList;
+    QList<Pig*> piglist;
+    QList<GameItem*> deleteList;
+    Bird* activeBird;
     QTimer timer;
+    QGraphicsTextItem * scoreText,*scoreText2 ;
+    QPointF cursorPos;
+    Button * qbutton,*rbutton;
+    float cx,cy;
+    float anchorx,anchory;
+    int score;
+    int birdSequence;   //represents the bird to create
 };
 
 #endif // MAINWINDOW_H

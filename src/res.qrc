@@ -1,6 +1,18 @@
 <RCC>
     <qresource prefix="/">
         <file alias="ground.png">image/GROUND.png</file>
-        <file alias="bird.png">image/Normal_Bird_1.png</file>
+        <file alias="redBird.png">image/Normal_Bird_1.png</file>
+        <file alias="slingshot.png">image/slingshot.png</file>
+        <file alias="box2.png">image/box2.png</file>
+        <file alias="stone.png">image/stone1.png</file>
+        <file alias="pig.png">image/green pigs2.png</file>
+        <file alias="blueBird.png">image/blueBird.png</file>
+        <file alias="yellowBird.png">image/yellowBird.png</file>
+        <file alias="font">font/angrybirds-regular.ttf</file>
+        <file alias="bg.png">image/bg.png</file>
+        <file alias="woods.png">image/woods.png</file>
+        <file alias="close.png">image/close.png</file>
+        <file alias="restart.png">image/restart.png</file>
+        <file alias="bigBird.png">image/Big_bro.png</file>
     </qresource>
 </RCC>

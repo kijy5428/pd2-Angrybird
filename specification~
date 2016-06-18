@@ -1,0 +1,12 @@
+1.QT
+ QgraphicScene : 一個提供場景控制的東西，可以add item 上去
+ QList<type> ： 提供一個以index為基底的快速儲存容器，內部以pointer進行實
+		作，能夠方便我們進行元素的新增/刪除
+ QeventFilter : 能夠幫忙過慮不必要的事件events
+
+
+
+2.Box2D 
+ b2world : 代表的是整個世界，包含了一切物理法則
+ b2body  : 代表著一個 rigid body 一個實體
+ b2vec2(x,y) : create x direction / y direction acceleration
